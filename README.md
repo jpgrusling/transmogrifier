@@ -9,7 +9,7 @@ The motivation behind this library was the need for a licensing tool. Our requir
 
 ## Install
 ```bash
-npm install transmogrifier
+npm install transmogrifier.js
 ```
 
 ## Usage (serialize)
