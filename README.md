@@ -1,5 +1,5 @@
 # transmogrifier
-Serialize and deserialize objects &lt;-&gt; binary string.
+Transformation of properties into a binary string and back.
 
 ## "Randomization"
 This library uses a mechanism to give the appearance of randomization. Every byte is prepended with a salt bit (local invert). Also, the overal string is ended with another salt bit (global invert). For each byte, if the local invert does not equal the global invert then each bit within that byte is inverted (0 becomes 1 and 1 becomes 0). Using this mechanism, two serial numbers containing the same properties can yeild completely different binary strings.

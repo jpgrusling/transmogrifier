@@ -1,7 +1,7 @@
 {
   "name": "transmogrifier.js",
   "version": "0.0.1",
-  "description": "Serialize and deserialize objects to/from a binary string.",
+  "description": "Transformation of properties into a binary string and back.",
   "main": "src/transmogrifier.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha"
