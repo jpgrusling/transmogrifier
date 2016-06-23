@@ -12,7 +12,7 @@ The motivation behind this library was the need for a licensing tool. Our requir
 npm install transmogrifier.js
 ```
 
-## Usage (serialize)
+## Usage (properties to binary string)
 ```javascript
 var Transmogrifier = require('transmogrifier');
 var transmogrifier = new Transmogrifier({
@@ -32,7 +32,7 @@ console.log(transmogrifier.toJSON()); // prints { "version": 1, "hardwareId": 40
 console.log(transmogrifier.toString()); // prints 1111111101111100001010111110
 ```
 
-## Usage (deserialize)
+## Usage (binary string to properties)
 ```javascript
 var Transmogrifier = require('transmogrifier');
 var transmogrifier = new Transmogrifier({
@@ -44,7 +44,7 @@ var transmogrifier = new Transmogrifier({
   }
 });
 
-serilizer.decodeString('1111111101111100001010111110');
+serilizer.toProperties('1111111101111100001010111110');
 
 console.log(serilizer.toJSON()); // prints { "version": 1, "hardwareId": 4000 }
 console.log(transmogrifier.toString()); // prints 1111111101111100001010111110
@@ -152,7 +152,7 @@ transmogrifier.set('verion', 2);
 console.log(transmogrifier.get('version')); // prints 2
 ```
 
-### #toJSON()
+### #toJSON() (`alias` #toObject)
 Return an object repesenting the properties and their respective values.
 ```javascript
 var Transmogrifier = require('transmogrifier');
@@ -174,7 +174,7 @@ transmogrifier.set({
 console.log(transmogrifier.toJSON()); // prints { "version": 2, "hardwareId": 10 }
 ```
 
-### #toString() (alias #serialize())
+### #toString() (`alias` #serialize)
 Returns the string equivalent of the current object.
 ```javascript
 var Transmogrifier = require('transmogrifier');
@@ -194,7 +194,7 @@ transmogrifier.set({
 console.log(transmogrifier.toString()); // prints 1111111101111100001010111110
 ```
 
-### #decodeString(binaryString) (alias #deserialize(binaryString))
+### #toProperties(binaryString) (`alias` #deserialize)
 Deserialize the provided binary string and set the values to their respective properties of the object.
 ```javascript
 var Transmogrifier = require('transmogrifier');
@@ -207,7 +207,7 @@ var transmogrifier = new Transmogrifier({
   }
 });
 
-serilizer.decodeString('1111111101111100001010111110');
+serilizer.toProperties('1111111101111100001010111110');
 
 console.log(serilizer.toJSON()); // prints { "version": 1, "hardwareId": 4000 }
 ```

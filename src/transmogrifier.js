@@ -119,53 +119,57 @@ SerialCoder.prototype.set = function(property, value) {
   }
 };
 
-SerialCoder.prototype.toJSON = function() {
-  debug('Return values as JSON.');
-  return this._values;
+var deserialize = function(value) {
+  debug('Decode string into properties.');
+
+  if (typeof value !== 'string') {
+    debug('Parameter must be a string. Passed in %s.', typeof value);
+    throw new TypeError('First parameter must be a string.');
+  }
+
+  if (value.match(/[^0-1]/g)) {
+    debug('SerialNumber string was not a binary string.');
+    throw new TypeError('Parameter must be a binary string.');
+  }
+
+  if (value.length !== this._totalBits) {
+    debug('Invalid string length.');
+    throw new RangeError('Invalid string length. Expected %d.',
+      this._totalBits);
+  }
+
+  var globalInvert = parseInt(value.charAt(this._totalBits - 1));
+  var chunks = value.substr(0, this._totalBits - 1).match(/.{1,9}/g);
+  chunks = chunks.map(function(chunk) {
+    var localInvert = parseInt(chunk.charAt(0));
+    var byte = chunk.substr(1);
+    if (localInvert !== globalInvert) {
+      byte = byte.split('').map(function(bit) {
+        return parseInt(bit) ? 0 : 1;
+      }).join('');
+    }
+    return byte;
+  });
+
+  for (var property in this._schema) {
+    var propertyBytes = chunks.splice(0, this._schema[property].bytes);
+    setPropertyValue.call(this, property,
+      parseInt(propertyBytes.join(''), 2));
+  }
+
+  return this;
 };
 
-SerialCoder.prototype.decodeString =
-  SerialCoder.prototype.deserialize =
-  function(value) {
-    debug('Decode string into properties.');
-
-    if (typeof value !== 'string') {
-      debug('Parameter must be a string. Passed in %s.', typeof value);
-      throw new TypeError('First parameter must be a string.');
-    }
-
-    if (value.match(/[^0-1]/g)) {
-      debug('SerialNumber string was not a binary string.');
-      throw new TypeError('Parameter must be a binary string.');
-    }
-
-    if (value.length !== this._totalBits) {
-      debug('Invalid string length.');
-      throw new RangeError('Invalid string length. Expected %d.',
-        this._totalBits);
-    }
-
-    var globalInvert = parseInt(value.charAt(this._totalBits - 1));
-    var chunks = value.substr(0, this._totalBits - 1).match(/.{1,9}/g);
-    chunks = chunks.map(function(chunk) {
-      var localInvert = parseInt(chunk.charAt(0));
-      var byte = chunk.substr(1);
-      if (localInvert !== globalInvert) {
-        byte = byte.split('').map(function(bit) {
-          return parseInt(bit) ? 0 : 1;
-        }).join('');
-      }
-      return byte;
-    });
-
-    for (var property in this._schema) {
-      var propertyBytes = chunks.splice(0, this._schema[property].bytes);
-      setPropertyValue.call(this, property,
-        parseInt(propertyBytes.join(''), 2));
-    }
-
-    return this;
+SerialCoder.prototype.toJSON =
+  SerialCoder.prototype.toObject =
+  function toJSON() {
+    debug('Return values as JSON.');
+    return this._values;
   };
+
+SerialCoder.prototype.toProperties =
+  SerialCoder.prototype.deserialize =
+  deserialize;
 
 var normalizeChunks = function(chunks, globalInvert, salt) {
   var saltIndex = 0;
