@@ -132,8 +132,8 @@ var deserialize = function(value) {
 
   if (value.length !== this._totalBits) {
     debug('Invalid string length.');
-    throw new RangeError('Invalid string length. Expected %d.',
-      this._totalBits);
+    throw new RangeError('Invalid string length. Expected ' +
+       this._totalBits + '.');
   }
 
   var globalInvert = parseInt(value.charAt(this._totalBits - 1));
@@ -170,12 +170,12 @@ SerialCoder.prototype.set = function(property, value) {
           }
           return response;
         case 'string':
-          if (value.match(/[^0-1]/g)) {
+          if (property.match(/[^0-1]/g)) {
             throw new TypeError(
               'Single argument string must be a binary string.');
           }
           debug('deserialize an encoded string.');
-          deserialize(property);
+          deserialize.call(this, property);
           return this._values;
         default:
           throw new TypeError('When supplying one argument,' +
