@@ -72,11 +72,6 @@ describe('Transmogrifier', function() {
         }).to.not.throw(Error);
       });
     });
-    describe('#toJSON()', function() {
-      it('should return an object', function() {
-        expect((new Transmogrifier(schema)).toJSON()).to.be.an('object');
-      });
-    });
     describe('#set()', function() {
       it('should be a function', function() {
         expect((new Transmogrifier(schema)).set).to.be.a('function');
@@ -93,11 +88,25 @@ describe('Transmogrifier', function() {
           expect(function() {
             transmogrifier.set({
               date: 100
-            }).to.not.throw(Error);
-          });
+            });
+          }).to.not.throw(Error);
         });
+      it('should not error if passing a valid binary string', function() {
+        var transmogrifier = new Transmogrifier(schema);
+        transmogrifier.set({
+          date: 100,
+          product: 1,
+          version: 1,
+          revision: 0,
+          hardwareId: parseInt('1234567890', 16)
+        });
+        var serial = transmogrifier.toString();
+        expect(function() {
+          transmogrifier.set(serial);
+        }).to.not.throw(Error);
+      });
     });
-    describe('#get', function() {
+    describe('#get()', function() {
       it('should be a function', function() {
         expect((new Transmogrifier(schema)).get).to.be.a('function');
       });
@@ -107,6 +116,13 @@ describe('Transmogrifier', function() {
         var value = 12;
         transmogrifier.set(property, value);
         expect(transmogrifier.get(property)).to.equal(value);
+      });
+      it('should return an object if not providing a property', function() {
+        var transmogrifier = new Transmogrifier(schema);
+        var property = 'date';
+        var value = 12;
+        transmogrifier.set(property, value);
+        expect(transmogrifier.get()).to.be.an('object');
       });
     });
   });
