@@ -71,7 +71,7 @@ var schema = {
 #### Properties
 
 ##### salt
-Property of the object that defines the salt. The salt is used as a means by which to generate randomization within the string to make it appear random. It is a read/write value. A value is automatically generated on initialization but can be overridden manually by using this property.
+Property of the object that defines the salt. The salt is used as a means by which to generate randomization within the string to make it appear random. It is a read/write value. A value is automatically generated on initialization but can be overridden manually by using this property. The value of salt can be in either a binary string value, a numeric value or equal to Math.random. If you set salt to Math.random, it will automatically generate a new salt from 0 to the max possible value.
 ```javascript
 var Transmogrifier = require('transmogrifier');
 
@@ -93,6 +93,9 @@ transmogrifier.salt = '1000';
 
 // As a number
 transmogrifier.salt = 8;
+
+// Set random salt
+transmogrifier.salt = Math.random;
 ```
 
 ### #set(property, value)

@@ -43,9 +43,9 @@ var SerialCoder = function SerialCoder(schema) {
       },
       set: function(value) {
         debug('Set the value of the salt to %s.', value);
+        var max = Math.pow(2, saltLength) - 1;
         switch (typeof value) {
           case 'number':
-            var max = Math.pow(2, saltLength) - 1;
             if (value < 0 || value > max) {
               throw new RangeError('Value must be between 0 and ' + max + '.');
             }
@@ -60,6 +60,11 @@ var SerialCoder = function SerialCoder(schema) {
             }
             value = parseInt(value, 2);
             break;
+          case 'function':
+            if (value === Math.random) {
+              value = Math.floor(Math.random() * max);
+              break;
+            }
           default:
             throw new TypeError(
               'Salt must be either a number or binary string.');
