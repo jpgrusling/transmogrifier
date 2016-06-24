@@ -1,4 +1,4 @@
-var debug = require('debug')('transmogrifier.js');
+var debug   = require('debug')('transmogrifier.js');
 var leftPad = require('left-pad');
 
 var SerialCoder = function SerialCoder(schema) {
