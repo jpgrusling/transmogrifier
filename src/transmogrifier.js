@@ -79,6 +79,11 @@ var SerialCoder = function SerialCoder(schema) {
 };
 
 SerialCoder.prototype.get = function(property) {
+  if (property === undefined) {
+    debug('Return all properties as an object.');
+    return this._values;
+  }
+
   debug('Get value of property %s.', property);
   if (!(property in this._schema)) {
     debug('Property %s not defined. Unable to get value', property);
@@ -110,18 +115,6 @@ var setPropertyValue = function(property, value) {
 
   this._values[property] = value;
   return this._values[property];
-};
-
-SerialCoder.prototype.set = function(property, value) {
-  if (typeof property === 'object') {
-    debug('Set values of properties using an object. %o', property);
-    for (var prop in property) {
-      setPropertyValue.call(this, prop, property[prop]);
-    }
-  } else {
-    debug('Set value of property %s to %s.', property, value);
-    setPropertyValue.call(this, property, value);
-  }
 };
 
 var deserialize = function(value) {
@@ -165,16 +158,36 @@ var deserialize = function(value) {
   return this;
 };
 
-SerialCoder.prototype.toJSON =
-  SerialCoder.prototype.toObject =
-  function toJSON() {
-    debug('Return values as JSON.');
-    return this._values;
-  };
-
-SerialCoder.prototype.toProperties =
-  SerialCoder.prototype.deserialize =
-  deserialize;
+SerialCoder.prototype.set = function(property, value) {
+  switch (arguments.length) {
+    case 1:
+      switch (typeof property) {
+        case 'object':
+          debug('Set values of properties using an object. %o', property);
+          var response = {};
+          for (var prop in property) {
+            response[prop] = setPropertyValue.call(this, prop, property[prop]);
+          }
+          return response;
+        case 'string':
+          if (value.match(/[^0-1]/g)) {
+            throw new TypeError(
+              'Single argument string must be a binary string.');
+          }
+          debug('deserialize an encoded string.');
+          deserialize(property);
+          return this._values;
+        default:
+          throw new TypeError('When supplying one argument,' +
+            ' it must be either a string or object.');
+      }
+    case 2:
+      debug('Set value of property %s to %s.', property, value);
+      return setPropertyValue.call(this, property, value);
+    default:
+      throw new Error('Set method must take either one or two arguments.');
+  }
+};
 
 var normalizeChunks = function(chunks, globalInvert, salt) {
   var saltIndex = 0;
@@ -190,37 +203,35 @@ var normalizeChunks = function(chunks, globalInvert, salt) {
   });
 };
 
-SerialCoder.prototype.toString =
-  SerialCoder.prototype.serialize =
-  function() {
-    debug('Return string value of serial.');
+SerialCoder.prototype.toString = function() {
+  debug('Return string value of serial.');
 
-    var undefinedProperties = [];
-    for (var property in this._schema) {
-      if (this._values[property] === undefined) {
-        undefinedProperties.push(property);
-      }
+  var undefinedProperties = [];
+  for (var property in this._schema) {
+    if (this._values[property] === undefined) {
+      undefinedProperties.push(property);
     }
-    if (undefinedProperties.length) {
-      debug('There are some undefined properties. Cannot proceed.');
-      throw new Error('All properties must be defined.' +
-        ' The following properties are undefined: ' +
-        undefinedProperties.join(', ') + '.');
-    }
+  }
+  if (undefinedProperties.length) {
+    debug('There are some undefined properties. Cannot proceed.');
+    throw new Error('All properties must be defined.' +
+      ' The following properties are undefined: ' +
+      undefinedProperties.join(', ') + '.');
+  }
 
-    var globalInvert = parseInt(this._salt.charAt(this._salt.length - 1));
-    var salt = this._salt.substring(0, this._salt.length - 1);
+  var globalInvert = parseInt(this._salt.charAt(this._salt.length - 1));
+  var salt = this._salt.substring(0, this._salt.length - 1);
 
-    var serial = '';
+  var serial = '';
 
-    for (property in this._schema) {
-      var bytes = this._schema[property].bytes;
-      var bin = leftPad(this._values[property].toString(2), 8 * bytes, 0);
-      var chunks = bin.match(/.{1,8}/g);
-      serial += normalizeChunks(chunks, globalInvert, salt).join('');
-    }
+  for (property in this._schema) {
+    var bytes = this._schema[property].bytes;
+    var bin = leftPad(this._values[property].toString(2), 8 * bytes, 0);
+    var chunks = bin.match(/.{1,8}/g);
+    serial += normalizeChunks(chunks, globalInvert, salt).join('');
+  }
 
-    return serial + globalInvert;
-  };
+  return serial + globalInvert;
+};
 
 module.exports = SerialCoder;
