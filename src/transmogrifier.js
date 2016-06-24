@@ -1,12 +1,12 @@
 var debug   = require('debug')('transmogrifier.js');
 var leftPad = require('left-pad');
 
-var SerialCoder = function SerialCoder(schema) {
-  if (!(this instanceof SerialCoder)) {
+var Transmogrifier = function Transmogrifier(schema) {
+  if (!(this instanceof Transmogrifier)) {
     debug('Class not called with new. Instantiate automatically.');
-    return new SerialCoder();
+    return new Transmogrifier();
   }
-  debug('Instantiated new SerialCoder class.');
+  debug('Instantiated new Transmogrifier class.');
 
   if (typeof schema !== 'object') {
     debug('Schema argument not object. Actual: %s.', typeof schema);
@@ -78,7 +78,7 @@ var SerialCoder = function SerialCoder(schema) {
   return this;
 };
 
-SerialCoder.prototype.get = function(property) {
+Transmogrifier.prototype.get = function(property) {
   if (property === undefined) {
     debug('Return all properties as an object.');
     return this._values;
@@ -158,7 +158,7 @@ var deserialize = function(value) {
   return this;
 };
 
-SerialCoder.prototype.set = function(property, value) {
+Transmogrifier.prototype.set = function(property, value) {
   switch (arguments.length) {
     case 1:
       switch (typeof property) {
@@ -203,7 +203,7 @@ var normalizeChunks = function(chunks, globalInvert, salt) {
   });
 };
 
-SerialCoder.prototype.toString = function() {
+Transmogrifier.prototype.toString = function() {
   debug('Return string value of serial.');
 
   var undefinedProperties = [];
@@ -234,4 +234,4 @@ SerialCoder.prototype.toString = function() {
   return serial + globalInvert;
 };
 
-module.exports = SerialCoder;
+module.exports = Transmogrifier;
