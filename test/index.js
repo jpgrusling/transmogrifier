@@ -52,6 +52,32 @@ describe('Transmogrifier', function() {
       expect(new Transmogrifier(schema)).to.be.an.instanceof(Transmogrifier);
     });
   });
+  describe('salt', function() {
+    it('should be a string', function() {
+      var transmogrifier = new Transmogrifier(schema);
+      expect(transmogrifier.salt).to.be.a('string');
+    });
+    it('should accept a string', function() {
+      var transmogrifier = new Transmogrifier(schema);
+      var salt = Math.floor(Math.random() * 4095).toString(2);
+      expect(function() {
+        transmogrifier.salt = salt;
+      }).to.not.throw(Error);
+    });
+    it('should accept a number', function() {
+      var transmogrifier = new Transmogrifier(schema);
+      var salt = Math.floor(Math.random() * 4095);
+      expect(function() {
+        transmogrifier.salt = salt;
+      }).to.not.throw(Error);
+    });
+    it('should accept Math.random', function() {
+      var transmogrifier = new Transmogrifier(schema);
+      expect(function() {
+        transmogrifier.salt = Math.random;
+      }).to.not.throw(Error);
+    });
+  });
   describe('#toString()', function() {
     it('should throw an error without properties defined', function() {
       var transmogrifier = new Transmogrifier(schema);
