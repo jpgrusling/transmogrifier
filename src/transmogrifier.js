@@ -137,9 +137,11 @@ var deserialize = function(value) {
   }
 
   var globalInvert = parseInt(value.charAt(this._totalBits - 1));
+  var salt = [];
   var chunks = value.substr(0, this._totalBits - 1).match(/.{1,9}/g);
   chunks = chunks.map(function(chunk) {
     var localInvert = parseInt(chunk.charAt(0));
+    salt.push(localInvert);
     var byte = chunk.substr(1);
     if (localInvert !== globalInvert) {
       byte = byte.split('').map(function(bit) {
@@ -148,12 +150,15 @@ var deserialize = function(value) {
     }
     return byte;
   });
+  salt.push(globalInvert);
 
   for (var property in this._schema) {
     var propertyBytes = chunks.splice(0, this._schema[property].bytes);
     setPropertyValue.call(this, property,
       parseInt(propertyBytes.join(''), 2));
   }
+
+  this.salt = salt.join('');
 
   return this;
 };
