@@ -81,7 +81,11 @@ var Transmogrifier = function Transmogrifier(schema) {
 Transmogrifier.prototype.get = function(property) {
   if (property === undefined) {
     debug('Return all properties as an object.');
-    return this._values;
+    var obj = {};
+    for (var property in this._values) {
+      obj[property] = this._values[property];
+    }
+    return obj;
   }
 
   debug('Get value of property %s.', property);
