@@ -228,12 +228,15 @@ Transmogrifier.prototype.toString = function() {
   var salt = this._salt.substring(0, this._salt.length - 1);
 
   var serial = '';
+  var saltIndex = 0;
 
   for (property in this._schema) {
     var bytes = this._schema[property].bytes;
     var bin = leftPad(this._values[property].toString(2), 8 * bytes, 0);
     var chunks = bin.match(/.{1,8}/g);
-    serial += normalizeChunks(chunks, globalInvert, salt).join('');
+    serial += normalizeChunks(chunks, globalInvert,
+      salt.substr(saltIndex, bytes)).join('');
+    saltIndex += bytes;
   }
 
   return serial + globalInvert;
